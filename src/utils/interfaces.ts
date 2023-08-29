@@ -36,6 +36,22 @@ export interface User {
 
 
 
+export interface Otp {
+  user: User;
+  type: OtpType;
+  otp:  string;
+  otpExpiration: Date | null;
+}
+
+export enum OtpType {
+  FORGET = 'forget',
+  VERIFICATION = 'verification',
+  CHANGE = 'change',
+}
+
+
+
+
 
 export interface Routes {
   path: string

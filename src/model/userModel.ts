@@ -22,7 +22,11 @@ const userSchema = new Schema({
     imgUrl: {
         type: String,
     }, 
+    
     storeId: [{type: Schema.Types.ObjectId, ref: 'Store'}]
+},
+{
+    timestamps: true,
 })
 
 

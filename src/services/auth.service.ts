@@ -1,10 +1,12 @@
 import { userModel } from "../model/userModel";
-import { User } from "../utils/interfaces";
+import { OtpType, User } from "../utils/interfaces";
 import { UserSignup } from "../dtos/user.dto";
 import { Service } from 'typedi';
 import { hash, compare } from "bcrypt";
 import jwt from 'jsonwebtoken'
 import { AppError } from "../utils/AppError";
+import { genrateOtp } from "../utils/otp";
+import { OtpModel } from "../model/otpModel";
 
 
 
@@ -35,17 +37,20 @@ export class AuthService {
 
 
     public async singup(data: UserSignup) {
-        console.log(data)
+        
+        
+
         const existingUser = await this.getUserByEmail(data.email)
 
         if (existingUser) {
-             new AppError(400, 'User already register')
+             throw new AppError(400, 'User already register')
         }
 
 
         const hashPassword = await hash(data.password, 10)
 
         const token = this.createToken(data)
+        console.log(token)
         
         const createdUser = await userModel.create({
             name: data.name,
@@ -53,7 +58,21 @@ export class AuthService {
             password: hashPassword
         })
 
-        return createdUser
+        const otp = genrateOtp(6)
+        let otpExpiration: any = new Date()
+        otpExpiration = otpExpiration.setMinutes(otpExpiration.getMinutes() + 10) 
+        const createdOTP = new OtpModel({
+            user: createdUser._id,
+            otp,
+            otpExpiration,
+            type: OtpType.VERIFICATION
+        })
+
+        await createdOTP.save()
+        
+
+        console.log(createdUser)
+        return {createdUser, token}
 
 
     }
