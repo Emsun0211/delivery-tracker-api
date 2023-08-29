@@ -22,6 +22,14 @@ const userSchema = new mongoose_1.Schema({
     imgUrl: {
         type: String,
     },
+    isSignupCompleted: {
+        type: Boolean,
+        default: false
+    },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
     storeId: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Store' }]
 }, {
     timestamps: true,

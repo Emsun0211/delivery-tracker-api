@@ -1,11 +1,11 @@
 import { userModel } from "../model/userModel";
 import { OtpType, User } from "../utils/interfaces";
-import { UserSignup } from "../dtos/user.dto";
+import { UserSignup, completeSignup } from "../dtos/user.dto";
 import { Service } from 'typedi';
 import { hash, compare } from "bcrypt";
 import jwt from 'jsonwebtoken'
 import { AppError } from "../utils/AppError";
-import { genrateOtp } from "../utils/otp";
+import { genrateOtp, verifyOtp } from "../utils/otp";
 import { OtpModel } from "../model/otpModel";
 
 
@@ -78,6 +78,49 @@ export class AuthService {
     }
 
 
+    private async completeSignup(data: completeSignup){
+        const {email, otp} = data;
+
+        const user = await userModel.findOne({email: email});
+
+        if(!user){
+            throw new AppError(404, 'User not found')
+        }
+
+        if(user.isEmailVerified){
+            throw new AppError(400, 'User already verified')
+        }
+
+        if(user.isSignupCompleted){
+            throw new AppError(400, 'User is already signed up')
+        }
+
+        const userOtp = await OtpModel.findOne({user: user._id, type: OtpType.VERIFICATION})
+        
+        if(!userOtp){
+            throw new AppError(400, 'No user found with this otp')
+        }
+
+        if(userOtp.otpExpiration < Date.now()){
+            throw new AppError(400, 'Otp has expired')
+        }
+
+        const isValidOtp = await verifyOtp(user._id,  OtpType.VERIFICATION, otp)
+
+        if(!isValidOtp){
+            throw new AppError(400, 'Invalid OTP')
+        }
+
+        const updateUser = await userModel.findByIdAndUpdate(
+            user._id, 
+            {name: user.name, email: user.email, isSingupCompleted: true, isEmailVerified: true  }
+        )
+
+        await OtpModel.deleteOne()
+
+        return updateUser
+
+    }
 
 
 }

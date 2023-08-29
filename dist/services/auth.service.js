@@ -60,6 +60,33 @@ let AuthService = exports.AuthService = class AuthService {
         console.log(createdUser);
         return { createdUser, token };
     }
+    async completeSignup(data) {
+        const { email, otp } = data;
+        const user = await userModel_1.userModel.findOne({ email: email });
+        if (!user) {
+            throw new AppError_1.AppError(404, 'User not found');
+        }
+        if (user.isEmailVerified) {
+            throw new AppError_1.AppError(400, 'User already verified');
+        }
+        if (user.isSignupCompleted) {
+            throw new AppError_1.AppError(400, 'User is already signed up');
+        }
+        const userOtp = await otpModel_1.OtpModel.findOne({ user: user._id, type: interfaces_1.OtpType.VERIFICATION });
+        if (!userOtp) {
+            throw new AppError_1.AppError(400, 'No user found with this otp');
+        }
+        if (userOtp.otpExpiration < Date.now()) {
+            throw new AppError_1.AppError(400, 'Otp has expired');
+        }
+        const isValidOtp = await (0, otp_1.verifyOtp)(user._id, interfaces_1.OtpType.VERIFICATION, otp);
+        if (!isValidOtp) {
+            throw new AppError_1.AppError(400, 'Invalid OTP');
+        }
+        const updateUser = await userModel_1.userModel.findByIdAndUpdate(user._id, { name: user.name, email: user.email, isSingupCompleted: true, isEmailVerified: true });
+        await otpModel_1.OtpModel.deleteOne();
+        return updateUser;
+    }
 };
 exports.AuthService = AuthService = __decorate([
     (0, typedi_1.Service)()

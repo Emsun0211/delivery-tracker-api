@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserSignup = void 0;
+exports.completeSignup = exports.UserSignup = void 0;
 const class_validator_1 = require("class-validator");
 class UserSignup {
 }
@@ -29,3 +29,18 @@ __decorate([
     (0, class_validator_1.Matches)(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, { message: 'Password must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters' }),
     __metadata("design:type", String)
 ], UserSignup.prototype, "password", void 0);
+class completeSignup {
+}
+exports.completeSignup = completeSignup;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], completeSignup.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsEmail)(),
+    __metadata("design:type", String)
+], completeSignup.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], completeSignup.prototype, "otp", void 0);

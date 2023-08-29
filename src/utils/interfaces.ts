@@ -29,6 +29,8 @@ export interface User {
     imgUrl: string;
     password: string;
     createdAt: Date;
+    isSignupCompleted?: boolean;
+    isEmailVerified?: boolean;
     storeId: Store['_id'][]
 
 }

@@ -21,7 +21,15 @@ const userSchema = new Schema({
     },
     imgUrl: {
         type: String,
-    }, 
+    },
+    isSignupCompleted: {
+        type: Boolean,
+        default: false
+    },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
     
     storeId: [{type: Schema.Types.ObjectId, ref: 'Store'}]
 },
